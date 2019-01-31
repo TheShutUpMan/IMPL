@@ -1,0 +1,11 @@
+-- file for the exercise on regular expressions
+
+token CIdent upper (upper | lower | '_' | '\'')* ;
+token TeX    '\\' letter* ;
+token Weird  '%' ( letter letter* | digit digit*) '%';
+token Subscript '_' ( letter | '{' ) ( letter | digit ) ( letter | digit )* '}' ;
+Cid. Element ::= CIdent ;
+Tex. Element ::= TeX ;
+Wrd. Element ::= Weird ;
+Sub. Element ::= Subscript ;
+separator Element "" ;

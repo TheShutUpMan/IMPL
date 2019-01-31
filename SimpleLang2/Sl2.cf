@@ -1,0 +1,13 @@
+token BIdent ["abAB"] (letter | ["_'"])* ;
+token IIdent (letter - ["ABab"]) (letter | ["_'"])* ;
+
+Pgm. Prog ::= [Stm];
+Assb. Stm ::= BIdent ":=" BVal;
+Assi. Stm ::= IIdent ":=" IVal;
+Putb. Stm ::= "putb" BVal;
+Puti. Stm ::= "puti" IVal;
+separator nonempty Stm ";";
+
+rules BVal ::= BIdent | "TRUE" | "FALSE" ;
+rules IVal ::= IIdent | Integer ;
+

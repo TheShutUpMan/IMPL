@@ -1,0 +1,13 @@
+
+Top. P ::= "(" [Ident] ";" [Ident] ";" E ")" ;
+separator Ident "," ;
+Implies. E ::= E1 "=>" E ;
+Rel.     E1 ::= E2 R E2 ;
+Plus.    E2 ::= E3 "+" E2 ;
+Nmb.     E3 ::= Integer;
+Var.     E3 ::= Ident;
+Fls.     E3 ::= "F" ;
+coercions E 3 ;
+
+Eql. R ::= "=" ;
+Lth. R ::= "<" ;

@@ -1,0 +1,5 @@
+-- Lispkit lisp
+
+rules SExp ::= "()" | SExp1 | "(" SExp "." SExp ")" | "(" SExp2 ")";
+rules SExp1 ::= Integer | Ident ;
+rules SExp2 ::= SExp SExp2 | SExp ;

@@ -1,0 +1,26 @@
+
+rules Stm ::= "skip" | A | "if" Guard "fi" | "do" Guard "od" ;
+separator nonempty Stm ";" ;
+
+rules A ::= Ident ":=" IntExpV | Ident "," A "," IntExpV ;
+
+Ass. Guard ::= Pred "->" Stm ;
+Comp. Guard ::= Guard "[]" Guard ;
+
+F. Pred ::= "FALSE" ;
+Imp. Pred ::= Pred "=>" Pred ;
+Rel. Pred ::= Relation ;
+
+Eq. Relation ::= IntExpV "=" IntExpV ;
+Lt. Relation ::= IntExpV "<" IntExpV ;
+Lst. Id ::= Ident ;
+separator nonempty Id "," ;
+Els. Exp ::= IntExpV ;
+separator nonempty Exp "," ;
+
+Add. IntExpV ::= IntExpV1 "+" IntExpV ;
+Mul. IntExpV1 ::= IntExpV2 "*" IntExpV1 ; -- multiplication
+Neg. IntExpV2 ::= "NEG" IntExpV2 ;      -- unary negation
+Nmb. IntExpV3 ::= Integer ;            -- integer constants
+Var. IntExpV3 ::= Ident ;              -- variables
+coercions IntExpV 3 ;                  -- brackets and linking productions

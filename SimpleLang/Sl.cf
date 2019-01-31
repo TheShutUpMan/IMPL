@@ -1,0 +1,8 @@
+
+rules Statement ::= Ident ":=" IntExp | "put" Ident | Statement ";" Statement ;
+Add. IntExp ::= IntExp1 "+" IntExp ;
+Mul. IntExp1 ::= IntExp2 "*" IntExp1 ; -- multiplication
+Neg. IntExp2 ::= "NEG" IntExp2 ;      -- unary negation
+Nmb. IntExp3 ::= Integer ;            -- integer constants
+Var. IntExp3 ::= Ident ;              -- variables
+coercions IntExp 3 ;                  -- brackets and linking productions
