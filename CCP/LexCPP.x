@@ -3,7 +3,7 @@
 {
 {-# OPTIONS -fno-warn-incomplete-patterns #-}
 {-# OPTIONS_GHC -w #-}
-module LexN where
+module LexCPP where
 
 
 
@@ -21,18 +21,22 @@ $i = [$l $d _ ']          -- identifier character
 $u = [\0-\255]          -- universal: any character
 
 @rsyms =    -- symbols and non-identifier-like reserved words
-   \: | \{ | \| | \} | \; | \, | \: \= | \< | \= | \+ | \* | \( | \)
+   \( | \) | \{ | \} | \, | \; | \= | \+ \+ | \- \- | \* | \/ | \+ | \- | \< | \> | \< \= | \> \= | \= \= | \! \= | \& \& | \| \| | \:
 
 :-
+"#" [.]* ; -- Toss single line comments
+"//" [.]* ; -- Toss single line comments
+"/*" ([$u # \*] | \*+ [$u # [\* \/]])* ("*")+ "/" ;
 
 $white+ ;
 @rsyms { tok (\p s -> PT p (eitherResIdent (TV . share) s)) }
+$l ($l | $d | \_)* { tok (\p s -> PT p (eitherResIdent (T_Id . share) s)) }
 
 $l $i*   { tok (\p s -> PT p (eitherResIdent (TV . share) s)) }
-
+\" ([$u # [\" \\ \n]] | (\\ (\" | \\ | \' | n | t)))* \"{ tok (\p s -> PT p (TL $ share $ unescapeInitTail s)) }
 
 $d+      { tok (\p s -> PT p (TI $ share s))    }
-
+$d+ \. $d+ (e (\-)? $d+)? { tok (\p s -> PT p (TD $ share s)) }
 
 {
 
@@ -49,6 +53,7 @@ data Tok =
  | TV !String         -- identifiers
  | TD !String         -- double precision float literals
  | TC !String         -- character literals
+ | T_Id !String
 
  deriving (Eq,Show,Ord)
 
@@ -86,6 +91,7 @@ prToken t = case t of
   PT _ (TD s)   -> s
   PT _ (TC s)   -> s
   Err _         -> "#error"
+  PT _ (T_Id s) -> s
 
 
 data BTree = N | B String Tok BTree BTree deriving (Show)
@@ -99,7 +105,7 @@ eitherResIdent tv s = treeFind resWords
                               | s == a = t
 
 resWords :: BTree
-resWords = b "else" 15 (b ";" 8 (b "+" 4 (b ")" 2 (b "(" 1 N N) (b "*" 3 N N)) (b ":" 6 (b "," 5 N N) (b ":=" 7 N N))) (b "Int" 12 (b "=" 10 (b "<" 9 N N) (b "Bool" 11 N N)) (b "do" 14 (b "and" 13 N N) N))) (b "skip" 23 (b "neg" 19 (b "false" 17 (b "end" 16 N N) (b "if" 18 N N)) (b "or" 21 (b "not" 20 N N) (b "print" 22 N N))) (b "{" 27 (b "true" 25 (b "then" 24 N N) (b "while" 26 N N)) (b "}" 29 (b "|" 28 N N) N)))
+resWords = b "==" 17 (b "-" 9 (b "*" 5 (b "(" 3 (b "&&" 2 (b "!=" 1 N N) N) (b ")" 4 N N)) (b "++" 7 (b "+" 6 N N) (b "," 8 N N))) (b ";" 13 (b "/" 11 (b "--" 10 N N) (b ":" 12 N N)) (b "<=" 15 (b "<" 14 N N) (b "=" 16 N N)))) (b "return" 26 (b "else" 22 (b "bool" 20 (b ">=" 19 (b ">" 18 N N) N) (b "double" 21 N N)) (b "if" 24 (b "false" 23 N N) (b "int" 25 N N))) (b "while" 30 (b "true" 28 (b "string" 27 N N) (b "void" 29 N N)) (b "||" 32 (b "{" 31 N N) (b "}" 33 N N))))
    where b s n = let bs = id s
                   in B bs (TS bs n)
 

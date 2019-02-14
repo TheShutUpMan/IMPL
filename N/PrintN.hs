@@ -90,73 +90,68 @@ instance Print Ident where
   prtList _ [x] = concatD [prt 0 x]
   prtList _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
 
-instance Print V where
+instance Print Stm where
   prt i e = case e of
-    Var id t -> prPrec i 0 (concatD [prt 0 id, doc (showString ":"), prt 0 t])
-  prtList _ [] = concatD []
+    Skip -> prPrec i 0 (concatD [doc (showString "skip")])
+    Prnt exp -> prPrec i 0 (concatD [doc (showString "print"), prt 0 exp])
+    Assn id exp -> prPrec i 0 (concatD [prt 0 id, doc (showString ":="), prt 0 exp])
+    Ifte exp stm1 stm2 -> prPrec i 0 (concatD [doc (showString "if"), prt 0 exp, doc (showString "then"), prt 0 stm1, doc (showString "else"), prt 0 stm2, doc (showString "end")])
+    Iter exp stm -> prPrec i 0 (concatD [doc (showString "while"), prt 0 exp, doc (showString "do"), prt 0 stm, doc (showString "end")])
+    Blck decs procs stm -> prPrec i 0 (concatD [doc (showString "{"), prt 0 decs, doc (showString "|"), prt 0 procs, doc (showString "|"), prt 0 stm, doc (showString "}")])
+    Call id exps ids -> prPrec i 0 (concatD [prt 0 id, doc (showString "{"), prt 0 exps, doc (showString "|"), prt 0 ids, doc (showString "}")])
+    Seqn stms -> prPrec i 0 (concatD [prt 0 stms])
   prtList _ [x] = concatD [prt 0 x]
-  prtList _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
+  prtList _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print T where
-  prt i e = case e of
-    Int -> prPrec i 0 (concatD [doc (showString "Int")])
-    Bool -> prPrec i 0 (concatD [doc (showString "Bool")])
+instance Print [Stm] where
+  prt = prtList
 
-instance Print P where
+instance Print Dec where
   prt i e = case e of
-    Proc id vs1 vs2 s -> prPrec i 0 (concatD [prt 0 id, doc (showString ":"), doc (showString "{"), prt 0 vs1, doc (showString "|"), prt 0 vs2, doc (showString "|"), prt 0 s, doc (showString "}")])
+    Dcl id type_ -> prPrec i 0 (concatD [prt 0 id, doc (showString ":"), prt 0 type_])
   prtList _ [] = concatD []
   prtList _ [x] = concatD [prt 0 x]
   prtList _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print [P] where
+instance Print [Dec] where
   prt = prtList
 
-instance Print [V] where
-  prt = prtList
-
-instance Print D where
+instance Print Type where
   prt i e = case e of
-    Dvar v -> prPrec i 0 (concatD [prt 0 v])
-    Dpr p -> prPrec i 0 (concatD [prt 0 p])
+    IntgT -> prPrec i 0 (concatD [doc (showString "Int")])
+    BoolT -> prPrec i 0 (concatD [doc (showString "Bool")])
 
-instance Print S where
+instance Print Proc where
   prt i e = case e of
-    Skp -> prPrec i 0 (concatD [doc (showString "skip")])
-    Prn e_ -> prPrec i 0 (concatD [doc (showString "print"), prt 0 e_])
-    Ass id e_ -> prPrec i 0 (concatD [prt 0 id, doc (showString ":="), prt 0 e_])
-    Cho e_ s1 s2 -> prPrec i 0 (concatD [doc (showString "if"), prt 0 e_, doc (showString "then"), prt 0 s1, doc (showString "else"), prt 0 s2, doc (showString "end")])
-    Itr e_ s -> prPrec i 0 (concatD [doc (showString "while"), prt 0 e_, doc (showString "do"), prt 0 s, doc (showString "end")])
-    Dcl d s -> prPrec i 0 (concatD [doc (showString "{"), prt 0 d, doc (showString ";"), prt 0 s, doc (showString "}")])
-    Call id es ids -> prPrec i 0 (concatD [prt 0 id, doc (showString "{"), prt 0 es, doc (showString "|"), prt 0 ids, doc (showString "}")])
-    Seq ss -> prPrec i 0 (concatD [prt 0 ss])
+    PDcl id decs1 decs2 stm -> prPrec i 0 (concatD [prt 0 id, doc (showString ":"), doc (showString "{"), prt 0 decs1, doc (showString "|"), prt 0 decs2, doc (showString "|"), prt 0 stm, doc (showString "}")])
+  prtList _ [] = concatD []
   prtList _ [x] = concatD [prt 0 x]
   prtList _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
+
+instance Print [Proc] where
+  prt = prtList
 
 instance Print [Ident] where
   prt = prtList
 
-instance Print [E] where
-  prt = prtList
-
-instance Print [S] where
-  prt = prtList
-
-instance Print E where
+instance Print Exp where
   prt i e = case e of
-    Lt e_1 e_2 -> prPrec i 0 (concatD [prt 1 e_1, doc (showString "<"), prt 0 e_2])
-    Eq e_1 e_2 -> prPrec i 1 (concatD [prt 2 e_1, doc (showString "="), prt 1 e_2])
-    And e_1 e_2 -> prPrec i 2 (concatD [prt 3 e_1, doc (showString "and"), prt 2 e_2])
-    Or e_1 e_2 -> prPrec i 3 (concatD [prt 4 e_1, doc (showString "or"), prt 3 e_2])
-    Not e_ -> prPrec i 4 (concatD [doc (showString "not"), prt 4 e_])
-    Fls -> prPrec i 5 (concatD [doc (showString "false")])
-    Tr -> prPrec i 5 (concatD [doc (showString "true")])
-    Sum e_1 e_2 -> prPrec i 6 (concatD [prt 7 e_1, doc (showString "+"), prt 6 e_2])
-    Mul e_1 e_2 -> prPrec i 7 (concatD [prt 8 e_1, doc (showString "*"), prt 7 e_2])
-    Neg e_ -> prPrec i 8 (concatD [doc (showString "neg"), prt 8 e_])
-    Iex n -> prPrec i 9 (concatD [prt 0 n])
-    Idex id -> prPrec i 9 (concatD [prt 0 id])
+    Eql exp1 exp2 -> prPrec i 0 (concatD [prt 0 exp1, doc (showString "="), prt 0 exp2])
+    Lsth exp1 exp2 -> prPrec i 0 (concatD [prt 0 exp1, doc (showString "<"), prt 0 exp2])
+    Plus exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "+"), prt 1 exp2])
+    Or exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "or"), prt 1 exp2])
+    Mult exp1 exp2 -> prPrec i 2 (concatD [prt 3 exp1, doc (showString "*"), prt 2 exp2])
+    And exp1 exp2 -> prPrec i 2 (concatD [prt 3 exp1, doc (showString "and"), prt 2 exp2])
+    Negt exp -> prPrec i 3 (concatD [doc (showString "neg"), prt 3 exp])
+    Not exp -> prPrec i 3 (concatD [doc (showString "not"), prt 3 exp])
+    Intg n -> prPrec i 4 (concatD [prt 0 n])
+    TruV -> prPrec i 4 (concatD [doc (showString "true")])
+    FlsV -> prPrec i 4 (concatD [doc (showString "false")])
+    Vrbl id -> prPrec i 4 (concatD [prt 0 id])
   prtList _ [] = concatD []
   prtList _ [x] = concatD [prt 0 x]
   prtList _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
+
+instance Print [Exp] where
+  prt = prtList
 

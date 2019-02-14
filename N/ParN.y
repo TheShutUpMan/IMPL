@@ -8,26 +8,20 @@ import ErrM
 
 }
 
-%name pV V
-%name pT T
-%name pP P
-%name pListP ListP
-%name pListV ListV
-%name pD D
-%name pS S
+%name pStm Stm
+%name pListStm ListStm
+%name pDec Dec
+%name pListDec ListDec
+%name pType Type
+%name pProc Proc
+%name pListProc ListProc
 %name pListIdent ListIdent
-%name pListE ListE
-%name pListS ListS
-%name pE E
-%name pE1 E1
-%name pE2 E2
-%name pE3 E3
-%name pE4 E4
-%name pE5 E5
-%name pE6 E6
-%name pE7 E7
-%name pE8 E8
-%name pE9 E9
+%name pExp Exp
+%name pExp1 Exp1
+%name pExp2 Exp2
+%name pExp3 Exp3
+%name pExp4 Exp4
+%name pListExp ListExp
 -- no lexer declaration
 %monad { Err } { thenM } { returnM }
 %tokentype {Token}
@@ -71,63 +65,61 @@ L_integ  { PT _ (TI $$) }
 Ident   :: { Ident }   : L_ident  { Ident $1 }
 Integer :: { Integer } : L_integ  { (read ( $1)) :: Integer }
 
-V :: { V }
-V : Ident ':' T { AbsN.Var $1 $3 }
-T :: { T }
-T : 'Int' { AbsN.Int } | 'Bool' { AbsN.Bool }
-P :: { P }
-P : Ident ':' '{' ListV '|' ListV '|' S '}' { AbsN.Proc $1 $4 $6 $8 }
-ListP :: { [P] }
-ListP : {- empty -} { [] }
-      | P { (:[]) $1 }
-      | P ';' ListP { (:) $1 $3 }
-ListV :: { [V] }
-ListV : {- empty -} { [] }
-      | V { (:[]) $1 }
-      | V ',' ListV { (:) $1 $3 }
-D :: { D }
-D : V { AbsN.Dvar $1 } | P { AbsN.Dpr $1 }
-S :: { S }
-S : 'skip' { AbsN.Skp }
-  | 'print' E { AbsN.Prn $2 }
-  | Ident ':=' E { AbsN.Ass $1 $3 }
-  | 'if' E 'then' S 'else' S 'end' { AbsN.Cho $2 $4 $6 }
-  | 'while' E 'do' S 'end' { AbsN.Itr $2 $4 }
-  | '{' D ';' S '}' { AbsN.Dcl $2 $4 }
-  | Ident '{' ListE '|' ListIdent '}' { AbsN.Call $1 $3 $5 }
-  | ListS { AbsN.Seq $1 }
+Stm :: { Stm }
+Stm : 'skip' { AbsN.Skip }
+    | 'print' Exp { AbsN.Prnt $2 }
+    | Ident ':=' Exp { AbsN.Assn $1 $3 }
+    | 'if' Exp 'then' Stm 'else' Stm 'end' { AbsN.Ifte $2 $4 $6 }
+    | 'while' Exp 'do' Stm 'end' { AbsN.Iter $2 $4 }
+    | '{' ListDec '|' ListProc '|' Stm '}' { AbsN.Blck $2 $4 $6 }
+    | Ident '{' ListExp '|' ListIdent '}' { AbsN.Call $1 $3 $5 }
+    | ListStm { AbsN.Seqn $1 }
+ListStm :: { [Stm] }
+ListStm : Stm { (:[]) $1 } | Stm ';' ListStm { (:) $1 $3 }
+Dec :: { Dec }
+Dec : Ident ':' Type { AbsN.Dcl $1 $3 }
+ListDec :: { [Dec] }
+ListDec : {- empty -} { [] }
+        | Dec { (:[]) $1 }
+        | Dec ';' ListDec { (:) $1 $3 }
+Type :: { Type }
+Type : 'Int' { AbsN.IntgT } | 'Bool' { AbsN.BoolT }
+Proc :: { Proc }
+Proc : Ident ':' '{' ListDec '|' ListDec '|' Stm '}' { AbsN.PDcl $1 $4 $6 $8 }
+ListProc :: { [Proc] }
+ListProc : {- empty -} { [] }
+         | Proc { (:[]) $1 }
+         | Proc ';' ListProc { (:) $1 $3 }
 ListIdent :: { [Ident] }
 ListIdent : {- empty -} { [] }
           | Ident { (:[]) $1 }
           | Ident ',' ListIdent { (:) $1 $3 }
-ListE :: { [E] }
-ListE : {- empty -} { [] }
-      | E { (:[]) $1 }
-      | E ',' ListE { (:) $1 $3 }
-ListS :: { [S] }
-ListS : S { (:[]) $1 } | S ';' ListS { (:) $1 $3 }
-E :: { E }
-E : E1 '<' E { AbsN.Lt $1 $3 } | E1 { $1 }
-E1 :: { E }
-E1 : E2 '=' E1 { AbsN.Eq $1 $3 } | E2 { $1 }
-E2 :: { E }
-E2 : E3 'and' E2 { AbsN.And $1 $3 } | E3 { $1 }
-E3 :: { E }
-E3 : E4 'or' E3 { AbsN.Or $1 $3 } | E4 { $1 }
-E4 :: { E }
-E4 : 'not' E4 { AbsN.Not $2 } | E5 { $1 }
-E5 :: { E }
-E5 : 'false' { AbsN.Fls } | 'true' { AbsN.Tr } | E6 { $1 }
-E6 :: { E }
-E6 : E7 '+' E6 { AbsN.Sum $1 $3 } | E7 { $1 }
-E7 :: { E }
-E7 : E8 '*' E7 { AbsN.Mul $1 $3 } | E8 { $1 }
-E8 :: { E }
-E8 : 'neg' E8 { AbsN.Neg $2 } | E9 { $1 }
-E9 :: { E }
-E9 : Integer { AbsN.Iex $1 }
-   | Ident { AbsN.Idex $1 }
-   | '(' E ')' { $2 }
+Exp :: { Exp }
+Exp : Exp '=' Exp { AbsN.Eql $1 $3 }
+    | Exp '<' Exp { AbsN.Lsth $1 $3 }
+    | Exp1 { $1 }
+Exp1 :: { Exp }
+Exp1 : Exp2 '+' Exp1 { AbsN.Plus $1 $3 }
+     | Exp2 'or' Exp1 { AbsN.Or $1 $3 }
+     | Exp2 { $1 }
+Exp2 :: { Exp }
+Exp2 : Exp3 '*' Exp2 { AbsN.Mult $1 $3 }
+     | Exp3 'and' Exp2 { AbsN.And $1 $3 }
+     | Exp3 { $1 }
+Exp3 :: { Exp }
+Exp3 : 'neg' Exp3 { AbsN.Negt $2 }
+     | 'not' Exp3 { AbsN.Not $2 }
+     | Exp4 { $1 }
+Exp4 :: { Exp }
+Exp4 : Integer { AbsN.Intg $1 }
+     | 'true' { AbsN.TruV }
+     | 'false' { AbsN.FlsV }
+     | Ident { AbsN.Vrbl $1 }
+     | '(' Exp ')' { $2 }
+ListExp :: { [Exp] }
+ListExp : {- empty -} { [] }
+        | Exp { (:[]) $1 }
+        | Exp ',' ListExp { (:) $1 $3 }
 {
 
 returnM :: a -> Err a

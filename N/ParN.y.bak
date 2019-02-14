@@ -11,6 +11,7 @@ import ErrM
 %name pV V
 %name pT T
 %name pP P
+%name pListP ListP
 %name pListV ListV
 %name pD D
 %name pS S
@@ -76,6 +77,10 @@ T :: { T }
 T : 'Int' { AbsN.Int } | 'Bool' { AbsN.Bool }
 P :: { P }
 P : Ident ':' '{' ListV '|' ListV '|' S '}' { AbsN.Proc $1 $4 $6 $8 }
+ListP :: { [P] }
+ListP : {- empty -} { [] }
+      | P { (:[]) $1 }
+      | P ';' ListP { (:) $1 $3 }
 ListV :: { [V] }
 ListV : {- empty -} { [] }
       | V { (:[]) $1 }

@@ -12,42 +12,38 @@ failure x = Bad $ "Undefined case: " ++ show x
 transIdent :: Ident -> Result
 transIdent x = case x of
   Ident string -> failure x
-transV :: V -> Result
-transV x = case x of
-  Var ident t -> failure x
-transT :: T -> Result
-transT x = case x of
-  Int -> failure x
-  Bool -> failure x
-transP :: P -> Result
-transP x = case x of
-  Proc ident vs1 vs2 s -> failure x
-transD :: D -> Result
-transD x = case x of
-  Dvar v -> failure x
-  Dpr p -> failure x
-transS :: S -> Result
-transS x = case x of
-  Skp -> failure x
-  Prn e -> failure x
-  Ass ident e -> failure x
-  Cho e s1 s2 -> failure x
-  Itr e s -> failure x
-  Dcl d s -> failure x
-  Call ident es idents -> failure x
-  Seq ss -> failure x
-transE :: E -> Result
-transE x = case x of
-  Lt e1 e2 -> failure x
-  Eq e1 e2 -> failure x
-  And e1 e2 -> failure x
-  Or e1 e2 -> failure x
-  Not e -> failure x
-  Fls -> failure x
-  Tr -> failure x
-  Sum e1 e2 -> failure x
-  Mul e1 e2 -> failure x
-  Neg e -> failure x
-  Iex integer -> failure x
-  Idex ident -> failure x
+transStm :: Stm -> Result
+transStm x = case x of
+  Skip -> failure x
+  Prnt exp -> failure x
+  Assn ident exp -> failure x
+  Ifte exp stm1 stm2 -> failure x
+  Iter exp stm -> failure x
+  Blck decs procs stm -> failure x
+  Call ident exps idents -> failure x
+  Seqn stms -> failure x
+transDec :: Dec -> Result
+transDec x = case x of
+  Dcl ident type_ -> failure x
+transType :: Type -> Result
+transType x = case x of
+  IntgT -> failure x
+  BoolT -> failure x
+transProc :: Proc -> Result
+transProc x = case x of
+  PDcl ident decs1 decs2 stm -> failure x
+transExp :: Exp -> Result
+transExp x = case x of
+  Eql exp1 exp2 -> failure x
+  Lsth exp1 exp2 -> failure x
+  Plus exp1 exp2 -> failure x
+  Or exp1 exp2 -> failure x
+  Mult exp1 exp2 -> failure x
+  And exp1 exp2 -> failure x
+  Negt exp -> failure x
+  Not exp -> failure x
+  Intg integer -> failure x
+  TruV -> failure x
+  FlsV -> failure x
+  Vrbl ident -> failure x
 

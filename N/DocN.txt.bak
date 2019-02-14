@@ -34,7 +34,7 @@ The reserved words used in N are the following:
 
 The symbols used in N are the following:
   | : | { | | | }
-  | , | := | ; | <
+  | ; | , | := | <
   | = | + | * | (
   | ) |  |  | 
 
@@ -51,6 +51,9 @@ All other symbols are terminals.
   | //T// | -> | ``Int`` 
   |  |  **|**  | ``Bool`` 
   | //P// | -> | //Ident// ``:`` ``{`` //[V]// ``|`` //[V]// ``|`` //S// ``}`` 
+  | //[P]// | -> | **eps**
+  |  |  **|**  | //P// 
+  |  |  **|**  | //P// ``;`` //[P]// 
   | //[V]// | -> | **eps**
   |  |  **|**  | //V// 
   |  |  **|**  | //V// ``,`` //[V]// 

@@ -105,6 +105,12 @@ instance Print T where
 instance Print P where
   prt i e = case e of
     Proc id vs1 vs2 s -> prPrec i 0 (concatD [prt 0 id, doc (showString ":"), doc (showString "{"), prt 0 vs1, doc (showString "|"), prt 0 vs2, doc (showString "|"), prt 0 s, doc (showString "}")])
+  prtList _ [] = concatD []
+  prtList _ [x] = concatD [prt 0 x]
+  prtList _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
+
+instance Print [P] where
+  prt = prtList
 
 instance Print [V] where
   prt = prtList

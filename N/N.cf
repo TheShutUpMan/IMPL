@@ -1,37 +1,35 @@
-Var.  V ::= Ident ":" T ;
-
-Int.  T ::= "Int" ;
-Bool. T ::= "Bool" ;
-
-Proc. P ::= Ident " : " "{" [V] "|" [V] "|" S "}" ;
-separator P ";" ;
-
-separator V "," ;
-
-Dvar. D ::= V ;
-Dpr.  D ::= P ;
-
-Skp.  S ::= "skip" ;
-Prn.  S ::= "print" E ;
-Ass.  S ::= Ident ":=" E ;
-Cho.  S ::= "if" E "then" S "else" S "end" ;
-Itr.  S ::= "while" E "do" S "end" ;
-Dcl.  S ::= "{" D "; " S "}" ;
-Call. S ::= Ident "{" [E] "|" [Ident] "}" ;
+Skip. Stm ::= "skip" ;
+Prnt. Stm ::= " print " Exp ;
+Assn. Stm ::= Ident ":=" Exp ;
+Ifte . Stm ::= " if " Exp "then" Stm "else" Stm "end" ;
+Iter . Stm ::= "while" Exp "do" Stm "end" ;
+Blck. Stm ::=
+"{" [Dec] "|" [Proc] "|" Stm "}" ;
+Call. Stm ::=
+Ident "{" [Exp] "|" [Ident] "}" ;
+Seqn. Stm ::= [Stm] ;
+separator nonempty Stm ";" ;
+Dcl. Dec ::= Ident ":" Type ;
+separator Dec ";" ;
+IntgT. Type ::= " Int " ;
+BoolT. Type ::= "Bool" ;
+PDcl. Proc ::= Ident ":" "{" [Dec] "|" [Dec] "|" Stm "}" ;
+separator Proc ";" ;
 separator Ident "," ;
-separator E "," ;
-Seq.  S ::= [S] ;
-separator nonempty S ";" ;
-Lt.  E  ::= E1 "<" E ;
-Eq.  E1 ::= E2 "=" E1 ;
-And. E2 ::= E3 "and" E2 ;
-Or.  E3 ::= E4 "or" E3 ;
-Not. E4 ::= "not" E4 ;
-Fls. E5 ::= "false" ;
-Tr.  E5 ::= "true" ;
-Sum. E6 ::= E7 "+" E6 ;
-Mul. E7 ::= E8 "*" E7 ;
-Neg. E8 ::= "neg" E8 ;
-Iex. E9 ::= Integer ;
-Idex. E9 ::= Ident ;
-coercions E 9 ;
+Eql.
+Exp ::= Exp "=" Exp ;
+Lsth. Exp ::= Exp "<" Exp ;
+Plus. Exp1 ::= Exp2 "+" Exp1 ;
+Or.
+Exp1 ::= Exp2 "or" Exp1 ;
+Mult. Exp2 ::= Exp3 "*" Exp2 ;
+And. Exp2 ::= Exp3 "and" Exp2 ;
+Negt. Exp3 ::= "neg" Exp3 ;
+Not.
+Exp3 ::= "not" Exp3 ;
+Intg . Exp4 ::= Integer ;
+TruV. Exp4 ::= "true" ;
+FlsV. Exp4 ::= "false" ;
+Vrbl. Exp4 ::= Ident ;
+coercions Exp 4 ;
+separator Exp "," ;
