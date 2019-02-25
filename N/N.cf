@@ -3,30 +3,25 @@ Prnt. Stm ::= " print " Exp ;
 Assn. Stm ::= Ident ":=" Exp ;
 Ifte . Stm ::= " if " Exp "then" Stm "else" Stm "end" ;
 Iter . Stm ::= "while" Exp "do" Stm "end" ;
-Blck. Stm ::=
-"{" [Dec] "|" [Proc] "|" Stm "}" ;
-Call. Stm ::=
-Ident "{" [Exp] "|" [Ident] "}" ;
+Blck. Stm ::= "{" [Dec] "|" [Proc] "|" Stm "}" ;
+Call. Stm ::= Ident "{" [Exp] "|" [Ident] "}" ;
 Seqn. Stm ::= [Stm] ;
 separator nonempty Stm ";" ;
 Dcl. Dec ::= Ident ":" Type ;
 separator Dec ";" ;
-IntgT. Type ::= " Int " ;
+IntgT. Type ::= "Int" ;
 BoolT. Type ::= "Bool" ;
-PDcl. Proc ::= Ident ":" "{" [Dec] "|" [Dec] "|" Stm "}" ;
+PDcl. Proc ::= Ident ":" "{" [Dec] "|" [Dec] "|" Stm "}" ; -- { ins | outs | procedure }
 separator Proc ";" ;
 separator Ident "," ;
-Eql.
-Exp ::= Exp "=" Exp ;
+Eql.  Exp ::= Exp "=" Exp ;
 Lsth. Exp ::= Exp "<" Exp ;
 Plus. Exp1 ::= Exp2 "+" Exp1 ;
-Or.
-Exp1 ::= Exp2 "or" Exp1 ;
+Or.  Exp1 ::= Exp2 "or" Exp1 ;
 Mult. Exp2 ::= Exp3 "*" Exp2 ;
 And. Exp2 ::= Exp3 "and" Exp2 ;
 Negt. Exp3 ::= "neg" Exp3 ;
-Not.
-Exp3 ::= "not" Exp3 ;
+Not.  Exp3 ::= "not" Exp3 ;
 Intg . Exp4 ::= Integer ;
 TruV. Exp4 ::= "true" ;
 FlsV. Exp4 ::= "false" ;
